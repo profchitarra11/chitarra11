@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brani chitarra_traccia di studio</title>
+  <style>
+    /* ==========================================================================
+       STILE GENERALE: Un solo carattere senza grazie, grande e ad alto contrasto
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    :root {
+      --bg-page: #090d16;
+      --bg-card: #131b2e;
+      --bg-box: #1c2742;
+      --border-strong: #52648c;
+      --text-main: #ffffff;
+      --text-muted: #d1dcf0;
+      --accent-yellow: #ffd60a;
+      --accent-green: #00e676;
+      --accent-cyan: #38bdf8;
+      --accent-red: #ff5252;
+      --text-on-bright: #000000;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      font-size: 19px;
+      line-height: 1.4;
+      -webkit-text-size-adjust: 100%;
+      overflow-x: hidden;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 16px 14px 40px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* ==========================================================================
+       INTESTAZIONE E MESSAGGIO DI ERRORE FILE
+       ========================================================================== */
+    header {
+      background-color: var(--bg-card);
+      border: 3px solid var(--accent-yellow);
+      border-radius: 16px;
+      padding: 18px 16px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.45rem;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      color: var(--accent-yellow);
+      word-break: break-word;
+    }
+
+    .error-banner {
+      display: none;
+      background-color: #3b0d11;
+      border: 3px solid var(--accent-red);
+      border-radius: 16px;
+      padding: 18px 16px;
+      color: #ffffff;
+    }
+
+    .error-banner.visible {
+      display: block;
+    }
+
+    .error-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #ff8a80;
+      margin: 0 0 8px 0;
+    }
+
+    .error-text {
+      margin: 0 0 14px 0;
+      font-size: 1.05rem;
+    }
+
+    /* ==========================================================================
+       SEZIONI (CARDS) E TITOLI DI SEZIONE
+       ========================================================================== */
+    .section-card {
+      background-color: var(--bg-card);
+      border: 2px solid var(--border-strong);
+      border-radius: 16px;
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+      border-bottom: 2px solid var(--bg-box);
+      padding-bottom: 8px;
+    }
+
+    /* ==========================================================================
+       PULSANTI GRANDI E ACCESSIBILI PER TELEFONO
+       ========================================================================== */
+    button {
+      appearance: none;
+      -webkit-appearance: none;
+      border: 3px solid var(--border-strong);
+      border-radius: 14px;
+      background-color: var(--bg-box);
+      color: var(--text-main);
+      font-size: 1.15rem;
+      font-weight: 800;
+      min-height: 60px;
+      padding: 12px 14px;
+      cursor: pointer;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      transition: transform 0.06s ease, background-color 0.12s ease;
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    button:focus-visible {
+      outline: 4px solid var(--accent-yellow);
+      outline-offset: 2px;
+    }
+
+    /* Pulsante principale Play / Pausa */
+    .btn-play {
+      width: 100%;
+      min-height: 72px;
+      font-size: 1.45rem;
+      background-color: var(--accent-green);
+      border-color: #ffffff;
+      color: var(--text-on-bright);
+    }
+
+    .btn-play.is-playing {
+      background-color: var(--accent-yellow);
+      border-color: #ffffff;
+      color: var(--text-on-bright);
+    }
+
+    /* Pulsante attivo generico (Velocità, Loop, Pausa, Metronomo) */
+    button.active {
+      background-color: var(--accent-yellow);
+      border-color: #ffffff;
+      color: var(--text-on-bright);
+    }
+
+    button.active-green {
+      background-color: var(--accent-green);
+      border-color: #ffffff;
+      color: var(--text-on-bright);
+    }
+
+    .btn-retry {
+      width: 100%;
+      background-color: var(--accent-yellow);
+      color: var(--text-on-bright);
+      border-color: #ffffff;
+    }
+
+    /* ==========================================================================
+       1. LETTORE: TEMPI E BARRA DI SCORRIMENTO
+       ========================================================================== */
+    .time-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--bg-box);
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 1.35rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .time-current {
+      color: var(--accent-yellow);
+    }
+
+    .time-total {
+      color: var(--text-main);
+    }
+
+    .seek-wrapper {
+      padding: 6px 0;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 22px;
+      background: var(--bg-box);
+      border: 2px solid var(--border-strong);
+      border-radius: 12px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--accent-yellow);
+      border: 3px solid #000000;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--accent-yellow);
+      border: 3px solid #000000;
+      cursor: pointer;
+    }
+
+    /* ==========================================================================
+       2. VELOCITÀ
+       ========================================================================== */
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 400px) {
+      .grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* ==========================================================================
+       3. RIPETI UN PASSAGGIO (LOOP A-B)
+       ========================================================================== */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .loop-point-box {
+      background-color: var(--bg-box);
+      border: 2px solid var(--border-strong);
+      border-radius: 14px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .loop-label {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .loop-time-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      text-align: center;
+      color: var(--accent-cyan);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .adjust-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .adjust-row button {
+      min-height: 54px;
+      padding: 8px 6px;
+      font-size: 1.15rem;
+      background-color: var(--bg-card);
+    }
+
+    .btn-loop-toggle {
+      width: 100%;
+      min-height: 66px;
+      font-size: 1.25rem;
+    }
+
+    .pause-status {
+      display: none;
+      background-color: #2c2200;
+      border: 2px solid var(--accent-yellow);
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+      font-weight: 800;
+      font-size: 1.15rem;
+      color: var(--accent-yellow);
+    }
+
+    .pause-status.visible {
+      display: block;
+    }
+
+    /* ==========================================================================
+       4. PAUSA TRA RIPETIZIONI
+       ========================================================================== */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    /* ==========================================================================
+       5. METRONOMO SEPARATO
+       ========================================================================== */
+    .metro-controls {
+      display: grid;
+      grid-template-columns: 82px 1fr 82px;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn-step {
+      min-height: 68px;
+      font-size: 1.8rem;
+      font-weight: 800;
+    }
+
+    .bpm-display {
+      background-color: var(--bg-box);
+      border: 2px solid var(--border-strong);
+      border-radius: 14px;
+      padding: 10px 8px;
+      text-align: center;
+    }
+
+    .bpm-number {
+      display: block;
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--text-main);
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+    }
+
+    .bpm-unit {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .beat-indicators {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .beat-dot {
+      height: 44px;
+      border-radius: 10px;
+      background-color: var(--bg-box);
+      border: 2px solid var(--border-strong);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.15rem;
+      color: var(--text-muted);
+    }
+
+    /* Primo battito (accento) */
+    .beat-dot.accent-beat {
+      border-color: var(--accent-yellow);
+    }
+
+    .beat-dot.lit {
+      background-color: var(--accent-cyan);
+      color: var(--text-on-bright);
+      border-color: #ffffff;
+    }
+
+    .beat-dot.accent-beat.lit {
+      background-color: var(--accent-yellow);
+      color: var(--text-on-bright);
+      border-color: #ffffff;
+    }
+
+    .btn-metro-toggle {
+      width: 100%;
+      min-height: 66px;
+      font-size: 1.25rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="app-container">
+    <!-- Titolo principale richiesto -->
+    <header>
+      <h1>Brani chitarra_traccia di studio</h1>
+    </header>
+
+    <!-- Messaggio chiaro se il file traccia.mp3 non viene trovato -->
+    <section id="errorBanner" class="error-banner" role="alert" aria-live="assertive">
+      <p class="error-title">File audio non trovato</p>
+      <p id="errorMessage" class="error-text">
+        Impossibile caricare il file <strong>traccia.mp3</strong>. Verifica che il file si trovi nella stessa cartella di questa pagina e che il nome sia scritto esattamente <strong>traccia.mp3</strong>.
+      </p>
+      <button type="button" id="retryBtn" class="btn-retry">Riprova a caricare traccia.mp3</button>
+    </section>
+
+    <!-- Elemento audio nativo (nascosto, controllato dai pulsanti grandi) -->
+    <audio id="audioPlayer" src="traccia.mp3" preload="metadata"></audio>
+
+    <!-- 1. RIPRODUZIONE: Play/Pausa, barra di scorrimento, tempo -->
+    <section class="section-card" aria-label="Controlli di riproduzione">
+      <h2 class="section-title">1. Riproduzione traccia</h2>
+
+      <button type="button" id="playPauseBtn" class="btn-play">▶ PLAY</button>
+
+      <div class="time-row">
+        <span id="currentTimeDisplay" class="time-current">00:00</span>
+        <span>/</span>
+        <span id="durationDisplay" class="time-total">00:00</span>
+      </div>
+
+      <div class="seek-wrapper">
+        <input
+          type="range"
+          id="seekBar"
+          min="0"
+          max="1000"
+          value="0"
+          step="1"
+          aria-label="Posizione nel brano"
+        >
+      </div>
+    </section>
+
+    <!-- 2. VELOCITÀ (con preservesPitch) -->
+    <section class="section-card" aria-label="Velocità di riproduzione">
+      <h2 class="section-title">2. Velocità (intonazione invariata)</h2>
+      <div class="grid-4" id="speedButtons">
+        <button type="button" data-speed="0.5">50%</button>
+        <button type="button" data-speed="0.75">75%</button>
+        <button type="button" data-speed="0.9">90%</button>
+        <button type="button" data-speed="1" class="active">100%</button>
+      </div>
+    </section>
+
+    <!-- 3. RIPETI UN PASSAGGIO (Loop A-B) -->
+    <section class="section-card" aria-label="Ripeti un passaggio">
+      <h2 class="section-title">3. Ripeti un passaggio</h2>
+
+      <div class="grid-2">
+        <!-- Punto Inizio -->
+        <div class="loop-point-box">
+          <button type="button" id="markStartBtn">Segna inizio</button>
+          <div class="loop-label">Inizio passaggio</div>
+          <div id="loopStartDisplay" class="loop-time-value">00:00</div>
+          <div class="adjust-row">
+            <button type="button" id="startMinusBtn" aria-label="Anticipa inizio di 1 secondo">−1s</button>
+            <button type="button" id="startPlusBtn" aria-label="Posticipa inizio di 1 secondo">+1s</button>
+          </div>
+        </div>
+
+        <!-- Punto Fine -->
+        <div class="loop-point-box">
+          <button type="button" id="markEndBtn">Segna fine</button>
+          <div class="loop-label">Fine passaggio</div>
+          <div id="loopEndDisplay" class="loop-time-value">00:00</div>
+          <div class="adjust-row">
+            <button type="button" id="endMinusBtn" aria-label="Anticipa fine di 1 secondo">−1s</button>
+            <button type="button" id="endPlusBtn" aria-label="Posticipa fine di 1 secondo">+1s</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="pauseStatusBanner" class="pause-status" aria-live="polite"></div>
+
+      <button type="button" id="loopToggleBtn" class="btn-loop-toggle">Loop: SPENTO</button>
+    </section>
+
+    <!-- 4. PAUSA TRA UNA RIPETIZIONE E L'ALTRA -->
+    <section class="section-card" aria-label="Pausa tra ripetizioni">
+      <h2 class="section-title">4. Pausa tra ripetizioni</h2>
+      <div class="grid-3" id="pauseButtons">
+        <button type="button" data-pause="0" class="active">0 s</button>
+        <button type="button" data-pause="2">2 s</button>
+        <button type="button" data-pause="4">4 s</button>
+      </div>
+    </section>
+
+    <!-- 5. METRONOMO SEPARATO -->
+    <section class="section-card" aria-label="Metronomo">
+      <h2 class="section-title">5. Metronomo (accento sul 1° di 4)</h2>
+
+      <div class="metro-controls">
+        <button type="button" id="bpmMinusBtn" class="btn-step" aria-label="Diminuisci battiti al minuto">−</button>
+        <div class="bpm-display">
+          <span id="bpmValue" class="bpm-number">100</span>
+          <span class="bpm-unit">BPM (40 – 200)</span>
+        </div>
+        <button type="button" id="bpmPlusBtn" class="btn-step" aria-label="Aumenta battiti al minuto">+</button>
+      </div>
+
+      <div class="beat-indicators" aria-hidden="true">
+        <div class="beat-dot accent-beat" id="beatDot0">1</div>
+        <div class="beat-dot" id="beatDot1">2</div>
+        <div class="beat-dot" id="beatDot2">3</div>
+        <div class="beat-dot" id="beatDot3">4</div>
+      </div>
+
+      <button type="button" id="metroToggleBtn" class="btn-metro-toggle">Metronomo: SPENTO</button>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      'use strict';
+
+      /* ========================================================================
+         RIFERIMENTI AGLI ELEMENTI DEL DOM
+         ======================================================================== */
+      const audio = document.getElementById('audioPlayer');
+      const errorBanner = document.getElementById('errorBanner');
+      const errorMessage = document.getElementById('errorMessage');
+      const retryBtn = document.getElementById('retryBtn');
+
+      const playPauseBtn = document.getElementById('playPauseBtn');
+      const currentTimeDisplay = document.getElementById('currentTimeDisplay');
+      const durationDisplay = document.getElementById('durationDisplay');
+      const seekBar = document.getElementById('seekBar');
+
+      const speedButtonsContainer = document.getElementById('speedButtons');
+      const speedButtons = speedButtonsContainer.querySelectorAll('button');
+
+      const markStartBtn = document.getElementById('markStartBtn');
+      const markEndBtn = document.getElementById('markEndBtn');
+      const loopStartDisplay = document.getElementById('loopStartDisplay');
+      const loopEndDisplay = document.getElementById('loopEndDisplay');
+      const startMinusBtn = document.getElementById('startMinusBtn');
+      const startPlusBtn = document.getElementById('startPlusBtn');
+      const endMinusBtn = document.getElementById('endMinusBtn');
+      const endPlusBtn = document.getElementById('endPlusBtn');
+      const loopToggleBtn = document.getElementById('loopToggleBtn');
+      const pauseStatusBanner = document.getElementById('pauseStatusBanner');
+
+      const pauseButtonsContainer = document.getElementById('pauseButtons');
+      const pauseButtons = pauseButtonsContainer.querySelectorAll('button');
+
+      const bpmMinusBtn = document.getElementById('bpmMinusBtn');
+      const bpmPlusBtn = document.getElementById('bpmPlusBtn');
+      const bpmValueDisplay = document.getElementById('bpmValue');
+      const metroToggleBtn = document.getElementById('metroToggleBtn');
+      const beatDots = [
+        document.getElementById('beatDot0'),
+        document.getElementById('beatDot1'),
+        document.getElementById('beatDot2'),
+        document.getElementById('beatDot3')
+      ];
+
+      /* ========================================================================
+         STATO DELL'APPLICAZIONE (nessun dato salvato su disco/rete)
+         ======================================================================== */
+      let fileAvailable = true;
+      let isSeeking = false;
+      let currentSpeed = 1.0;
+
+      let loopStart = 0;
+      let loopEnd = null;
+      let loopEnabled = false;
+      let loopPauseSeconds = 0;
+
+      let isWaitingPause = false;
+      let pauseResumeTimeout = null;
+      let pauseCountdownInterval = null;
+      let rafLoopId = null;
+
+      /* Stato del metronomo */
+      let metroRunning = false;
+      let bpm = 100;
+      const MIN_BPM = 40;
+      const MAX_BPM = 200;
+      let audioCtx = null;
+      let metroSchedulerId = null;
+      let nextNoteTime = 0;
+      let currentBeat = 0;
+      let uiTimeouts = [];
+
+      /* ========================================================================
+         FUNZIONI DI UTILITÀ
+         ======================================================================== */
+      function formatTime(seconds) {
+        if (!Number.isFinite(seconds) || seconds < 0) {
+          return '00:00';
+        }
+        const totalSeconds = Math.floor(seconds);
+        const mins = Math.floor(totalSeconds / 60);
+        const secs = totalSeconds % 60;
+        return String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+      }
+
+      function enforcePreservesPitch() {
+        try {
+          if ('preservesPitch' in audio) {
+            audio.preservesPitch = true;
+          }
+          if ('mozPreservesPitch' in audio) {
+            audio.mozPreservesPitch = true;
+          }
+          if ('webkitPreservesPitch' in audio) {
+            audio.webkitPreservesPitch = true;
+          }
+        } catch (err) {
+          /* Ignora se il browser non espone la proprietà */
+        }
+      }
+
+      function applySpeed(rate) {
+        currentSpeed = rate;
+        audio.playbackRate = rate;
+        enforcePreservesPitch();
+      }
+
+      function getSafeDuration() {
+        return Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : 0;
+      }
+
+      function updateLoopDisplays() {
+        loopStartDisplay.textContent = formatTime(loopStart);
+        const displayEnd = loopEnd !== null ? loopEnd : getSafeDuration();
+        loopEndDisplay.textContent = formatTime(displayEnd);
+      }
+
+      function updatePlayPauseUI() {
+        if (!audio.paused || isWaitingPause) {
+          playPauseBtn.textContent = '⏸ PAUSA';
+          playPauseBtn.classList.add('is-playing');
+        } else {
+          playPauseBtn.textContent = '▶ PLAY';
+          playPauseBtn.classList.remove('is-playing');
+        }
+      }
+
+      function clearLoopPauseTimers() {
+        if (pauseResumeTimeout !== null) {
+          clearTimeout(pauseResumeTimeout);
+          pauseResumeTimeout = null;
+        }
+        if (pauseCountdownInterval !== null) {
+          clearInterval(pauseCountdownInterval);
+          pauseCountdownInterval = null;
+        }
+        isWaitingPause = false;
+        pauseStatusBanner.classList.remove('visible');
+        pauseStatusBanner.textContent = '';
+      }
+
+      function showFileError(customText) {
+        fileAvailable = false;
+        clearLoopPauseTimers();
+        if (customText) {
+          errorMessage.innerHTML = customText;
+        }
+        errorBanner.classList.add('visible');
+        updatePlayPauseUI();
+      }
+
+      function hideFileError() {
+        fileAvailable = true;
+        errorBanner.classList.remove('visible');
+      }
+
+      /* ========================================================================
+         GESTIONE CARICAMENTO ED ERRORI DEL FILE traccia.mp3
+         ======================================================================== */
+      audio.addEventListener('error', function () {
+        showFileError(
+          'Impossibile aprire il file <strong>traccia.mp3</strong>. Controlla che il file si trovi nella stessa cartella di questa pagina e si chiami esattamente <strong>traccia.mp3</strong>.'
+        );
+      });
+
+      audio.addEventListener('loadedmetadata', function () {
+        hideFileError();
+        const dur = getSafeDuration();
+        durationDisplay.textContent = formatTime(dur);
+        if (loopEnd === null || loopEnd > dur) {
+          loopEnd = dur;
+        }
+        updateLoopDisplays();
+        applySpeed(currentSpeed);
+      });
+
+      audio.addEventListener('canplay', function () {
+        hideFileError();
+        applySpeed(currentSpeed);
+      });
+
+      retryBtn.addEventListener('click', function () {
+        hideFileError();
+        audio.src = 'traccia.mp3';
+        audio.load();
+      });
+
+      /* ========================================================================
+         1. PLAY / PAUSA E BARRA DI SCORRIMENTO
+         ======================================================================== */
+      function togglePlayPause() {
+        if (isWaitingPause) {
+          /* Se si preme Pausa durante l'attesa tra ripetizioni, ferma tutto */
+          clearLoopPauseTimers();
+          audio.pause();
+          updatePlayPauseUI();
+          return;
+        }
+
+        if (audio.paused) {
+          /* Se il loop è attivo e siamo fuori dall'intervallo, parti dall'inizio del loop */
+          const effectiveEnd = loopEnd !== null ? loopEnd : getSafeDuration();
+          if (loopEnabled && effectiveEnd > loopStart) {
+            if (audio.currentTime < loopStart || audio.currentTime >= effectiveEnd - 0.05) {
+              audio.currentTime = loopStart;
+            }
+          }
+
+          applySpeed(currentSpeed);
+          const playPromise = audio.play();
+          if (playPromise !== undefined) {
+            playPromise
+              .then(function () {
+                hideFileError();
+                updatePlayPauseUI();
+              })
+              .catch(function (err) {
+                if (audio.error || audio.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
+                  showFileError(
+                    'Il file <strong>traccia.mp3</strong> non è stato trovato o non è leggibile. Assicurati che sia nella stessa cartella dell\'app.'
+                  );
+                } else {
+                  console.warn('Riproduzione non avviata:', err);
+                }
+                updatePlayPauseUI();
+              });
+          }
+        } else {
+          audio.pause();
+          updatePlayPauseUI();
+        }
+      }
+
+      playPauseBtn.addEventListener('click', togglePlayPause);
+
+      audio.addEventListener('play', function () {
+        enforcePreservesPitch();
+        updatePlayPauseUI();
+        startLoopMonitor();
+      });
+
+      audio.addEventListener('pause', function () {
+        updatePlayPauseUI();
+      });
+
+      /* Aggiornamento continuo barra e tempo */
+      function syncTimeUI() {
+        const dur = getSafeDuration();
+        const cur = audio.currentTime || 0;
+        currentTimeDisplay.textContent = formatTime(cur);
+        if (dur > 0) {
+          durationDisplay.textContent = formatTime(dur);
+          if (!isSeeking) {
+            seekBar.value = Math.round((cur / dur) * 1000);
+          }
+        }
+      }
+
+      audio.addEventListener('timeupdate', syncTimeUI);
+
+      /* Gestione spostamento barra (mouse e touch) */
+      seekBar.addEventListener('pointerdown', function () {
+        isSeeking = true;
+      });
+
+      seekBar.addEventListener('input', function () {
+        const dur = getSafeDuration();
+        if (dur > 0) {
+          const targetTime = (Number(seekBar.value) / 1000) * dur;
+          currentTimeDisplay.textContent = formatTime(targetTime);
+        }
+      });
+
+      function commitSeek() {
+        const dur = getSafeDuration();
+        if (dur > 0) {
+          const targetTime = (Number(seekBar.value) / 1000) * dur;
+          if (isWaitingPause) {
+            clearLoopPauseTimers();
+          }
+          audio.currentTime = targetTime;
+          currentTimeDisplay.textContent = formatTime(targetTime);
+        }
+        isSeeking = false;
+      }
+
+      seekBar.addEventListener('change', commitSeek);
+      seekBar.addEventListener('pointerup', commitSeek);
+
+      /* ========================================================================
+         2. VELOCITÀ DI RIPRODUZIONE
+         ======================================================================== */
+      speedButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const newSpeed = parseFloat(btn.getAttribute('data-speed'));
+          if (!Number.isFinite(newSpeed)) return;
+
+          speedButtons.forEach(function (b) {
+            b.classList.remove('active');
+          });
+          btn.classList.add('active');
+          applySpeed(newSpeed);
+        });
+      });
+
+      /* ========================================================================
+         3 & 4. RIPETI UN PASSAGGIO (LOOP A-B) E PAUSA TRA RIPETIZIONI
+         ======================================================================== */
+      markStartBtn.addEventListener('click', function () {
+        const cur = Math.floor(audio.currentTime || 0);
+        loopStart = Math.max(0, cur);
+        const dur = getSafeDuration();
+        if (loopEnd === null && dur > 0) {
+          loopEnd = dur;
+        }
+        if (loopEnd !== null && loopEnd <= loopStart) {
+          loopEnd = dur > loopStart + 1 ? loopStart + 1 : dur;
+        }
+        updateLoopDisplays();
+      });
+
+      markEndBtn.addEventListener('click', function () {
+        const dur = getSafeDuration();
+        const cur = Math.ceil(audio.currentTime || 0);
+        let targetEnd = dur > 0 ? Math.min(dur, cur) : cur;
+        if (targetEnd <= loopStart) {
+          loopStart = Math.max(0, targetEnd - 1);
+          if (targetEnd <= loopStart) {
+            targetEnd = dur > 0 ? Math.min(dur, loopStart + 1) : loopStart + 1;
+          }
+        }
+        loopEnd = targetEnd;
+        updateLoopDisplays();
+      });
+
+      /* Aggiustamento -1s e +1s per Inizio */
+      startMinusBtn.addEventListener('click', function () {
+        loopStart = Math.max(0, loopStart - 1);
+        updateLoopDisplays();
+      });
+
+      startPlusBtn.addEventListener('click', function () {
+        const dur = getSafeDuration();
+        const maxBound = loopEnd !== null ? Math.max(0, loopEnd - 1) : (dur > 0 ? Math.max(0, dur - 1) : loopStart + 1);
+        loopStart = Math.min(maxBound, loopStart + 1);
+        updateLoopDisplays();
+      });
+
+      /* Aggiustamento -1s e +1s per Fine */
+      endMinusBtn.addEventListener('click', function () {
+        const dur = getSafeDuration();
+        const currentEnd = loopEnd !== null ? loopEnd : dur;
+        const minBound = loopStart + 1;
+        loopEnd = Math.max(minBound, currentEnd - 1);
+        if (dur > 0 && loopEnd > dur) {
+          loopEnd = dur;
+        }
+        updateLoopDisplays();
+      });
+
+      endPlusBtn.addEventListener('click', function () {
+        const dur = getSafeDuration();
+        const currentEnd = loopEnd !== null ? loopEnd : dur;
+        if (dur > 0) {
+          loopEnd = Math.min(dur, currentEnd + 1);
+        } else {
+          loopEnd = currentEnd + 1;
+        }
+        updateLoopDisplays();
+      });
+
+      /* Accendi / Spegni Loop */
+      loopToggleBtn.addEventListener('click', function () {
+        loopEnabled = !loopEnabled;
+        if (loopEnabled) {
+          const dur = getSafeDuration();
+          if (loopEnd === null && dur > 0) {
+            loopEnd = dur;
+          }
+          updateLoopDisplays();
+          loopToggleBtn.textContent = 'Loop: ACCESO';
+          loopToggleBtn.classList.add('active-green');
+
+          /* Se la traccia sta suonando fuori dal passaggio, porta subito all'inizio del loop */
+          if (!audio.paused && loopEnd !== null && loopEnd > loopStart) {
+            if (audio.currentTime < loopStart || audio.currentTime >= loopEnd) {
+              audio.currentTime = loopStart;
+            }
+          }
+          startLoopMonitor();
+        } else {
+          clearLoopPauseTimers();
+          loopToggleBtn.textContent = 'Loop: SPENTO';
+          loopToggleBtn.classList.remove('active-green');
+          updatePlayPauseUI();
+        }
+      });
+
+      /* Pulsanti Pausa tra ripetizioni (0s, 2s, 4s) */
+      pauseButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const sec = parseInt(btn.getAttribute('data-pause'), 10);
+          if (!Number.isFinite(sec)) return;
+          loopPauseSeconds = sec;
+
+          pauseButtons.forEach(function (b) {
+            b.classList.remove('active');
+          });
+          btn.classList.add('active');
+        });
+      });
+
+      /* Esegue il salto all'inizio del passaggio (con eventuale pausa di 2s o 4s) */
+      function triggerLoopCycle() {
+        if (!loopEnabled || isWaitingPause) return;
+
+        if (loopPauseSeconds === 0) {
+          audio.currentTime = loopStart;
+          if (audio.paused) {
+            audio.play().catch(function () {});
+          }
+          return;
+        }
+
+        /* Pausa di 2 o 4 secondi prima di ripartire */
+        isWaitingPause = true;
+        audio.pause();
+        audio.currentTime = loopStart;
+        syncTimeUI();
+        updatePlayPauseUI();
+
+        let remaining = loopPauseSeconds;
+        pauseStatusBanner.textContent = 'Pausa: riparto tra ' + remaining + ' s...';
+        pauseStatusBanner.classList.add('visible');
+
+        pauseCountdownInterval = setInterval(function () {
+          remaining -= 1;
+          if (remaining > 0) {
+            pauseStatusBanner.textContent = 'Pausa: riparto tra ' + remaining + ' s...';
+          }
+        }, 1000);
+
+        pauseResumeTimeout = setTimeout(function () {
+          clearLoopPauseTimers();
+          if (loopEnabled) {
+            audio.currentTime = loopStart;
+            applySpeed(currentSpeed);
+            audio.play().catch(function () {});
+          }
+          updatePlayPauseUI();
+        }, loopPauseSeconds * 1000);
+      }
+
+      /* Controllo ad alta precisione durante la riproduzione */
+      function startLoopMonitor() {
+        if (rafLoopId !== null) {
+          cancelAnimationFrame(rafLoopId);
+        }
+
+        function checkLoopFrame() {
+          if (!audio.paused && !isWaitingPause && loopEnabled) {
+            const dur = getSafeDuration();
+            const effectiveEnd = loopEnd !== null && loopEnd > loopStart ? loopEnd : dur;
+            if (effectiveEnd > loopStart && audio.currentTime >= effectiveEnd) {
+              triggerLoopCycle();
+            }
+          }
+          if (!audio.paused) {
+            rafLoopId = requestAnimationFrame(checkLoopFrame);
+          } else {
+            rafLoopId = null;
+          }
+        }
+
+        rafLoopId = requestAnimationFrame(checkLoopFrame);
+      }
+
+      /* Gestione fine naturale del file audio */
+      audio.addEventListener('ended', function () {
+        if (loopEnabled) {
+          triggerLoopCycle();
+        } else {
+          updatePlayPauseUI();
+        }
+      });
+
+      /* ========================================================================
+         5. METRONOMO SEPARATO (Web Audio API, 40–200 BPM, accento sul 1° di 4)
+         ======================================================================== */
+      function updateBpmDisplay() {
+        bpmValueDisplay.textContent = String(bpm);
+      }
+
+      function changeBpm(delta) {
+        bpm = Math.min(MAX_BPM, Math.max(MIN_BPM, bpm + delta));
+        updateBpmDisplay();
+      }
+
+      /* Supporto pressione prolungata sui pulsanti - e + del metronomo */
+      function attachRepeatButton(buttonEl, delta) {
+        let holdTimeout = null;
+        let holdInterval = null;
+
+        function stopHold() {
+          if (holdTimeout !== null) {
+            clearTimeout(holdTimeout);
+            holdTimeout = null;
+          }
+          if (holdInterval !== null) {
+            clearInterval(holdInterval);
+            holdInterval = null;
+          }
+        }
+
+        buttonEl.addEventListener('pointerdown', function (e) {
+          e.preventDefault();
+          changeBpm(delta);
+          stopHold();
+          holdTimeout = setTimeout(function () {
+            holdInterval = setInterval(function () {
+              changeBpm(delta);
+            }, 90);
+          }, 400);
+        });
+
+        buttonEl.addEventListener('pointerup', stopHold);
+        buttonEl.addEventListener('pointerleave', stopHold);
+        buttonEl.addEventListener('pointercancel', stopHold);
+      }
+
+      attachRepeatButton(bpmMinusBtn, -1);
+      attachRepeatButton(bpmPlusBtn, 1);
+
+      function clearBeatVisuals() {
+        uiTimeouts.forEach(function (id) {
+          clearTimeout(id);
+        });
+        uiTimeouts = [];
+        beatDots.forEach(function (dot) {
+          dot.classList.remove('lit');
+        });
+      }
+
+      function highlightBeatDot(beatIndex) {
+        beatDots.forEach(function (dot, idx) {
+          if (idx === beatIndex) {
+            dot.classList.add('lit');
+          } else {
+            dot.classList.remove('lit');
+          }
+        });
+      }
+
+      function scheduleClickSound(beatIndex, time) {
+        if (!audioCtx) return;
+
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+
+        /* Accento sul primo battito di 4 (beatIndex === 0) */
+        const isAccent = beatIndex === 0;
+        osc.type = isAccent ? 'triangle' : 'sine';
+        osc.frequency.setValueAtTime(isAccent ? 1046.5 : 659.25, time);
+
+        const peakGain = isAccent ? 0.85 : 0.45;
+        gainNode.gain.setValueAtTime(0.001, time);
+        gainNode.gain.exponentialRampToValueAtTime(peakGain, time + 0.005);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, time + 0.065);
+
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        osc.start(time);
+        osc.stop(time + 0.07);
+
+        /* Sincronizzazione indicatore visivo 1-2-3-4 */
+        const delayMs = Math.max(0, (time - audioCtx.currentTime) * 1000);
+        const tid = setTimeout(function () {
+          if (metroRunning) {
+            highlightBeatDot(beatIndex);
+          }
+        }, delayMs);
+        uiTimeouts.push(tid);
+      }
+
+      function metroScheduler() {
+        if (!metroRunning || !audioCtx) return;
+        const scheduleAheadSec = 0.1;
+
+        while (nextNoteTime < audioCtx.currentTime + scheduleAheadSec) {
+          scheduleClickSound(currentBeat, nextNoteTime);
+          const secondsPerBeat = 60.0 / bpm;
+          nextNoteTime += secondsPerBeat;
+          currentBeat = (currentBeat + 1) % 4;
+        }
+      }
+
+      function startMetronome() {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) {
+          return;
+        }
+        if (!audioCtx) {
+          audioCtx = new AudioContextClass();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        metroRunning = true;
+        currentBeat = 0;
+        nextNoteTime = audioCtx.currentTime + 0.03;
+
+        metroScheduler();
+        metroSchedulerId = setInterval(metroScheduler, 25);
+
+        metroToggleBtn.textContent = 'Metronomo: ACCESO';
+        metroToggleBtn.classList.add('active-green');
+      }
+
+      function stopMetronome() {
+        metroRunning = false;
+        if (metroSchedulerId !== null) {
+          clearInterval(metroSchedulerId);
+          metroSchedulerId = null;
+        }
+        clearBeatVisuals();
+        metroToggleBtn.textContent = 'Metronomo: SPENTO';
+        metroToggleBtn.classList.remove('active-green');
+      }
+
+      metroToggleBtn.addEventListener('click', function () {
+        if (metroRunning) {
+          stopMetronome();
+        } else {
+          startMetronome();
+        }
+      });
+
+      /* Inizializzazione iniziale */
+      enforcePreservesPitch();
+      updateLoopDisplays();
+      updateBpmDisplay();
+    })();
+  </script>
+</body>
+</html>
